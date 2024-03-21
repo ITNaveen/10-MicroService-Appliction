@@ -1,0 +1,212 @@
+pipeline {
+    agent any
+    
+    environment {
+        SCANNER_HOME = tool 'sonar-scanner'
+    }
+    
+    stages {
+        stage('git checkout') {
+            steps {
+                git branch: 'latest', url: 'https://github.com/ITNaveen/10-MicroService-Appliction.git'
+            }
+        }
+        
+        stage('SonarQube') {
+            steps {
+                withSonarQubeEnv('sonar') {
+                    sh "$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectKey=10-Tier -Dsonar.ProjectName=10-Tier -Dsonar.java.binaries=."
+                }
+            }
+        }
+        
+        stage('adservice') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred' , toolname: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-tier/src/adservice'){
+                            sh 'docker build -t naveenthapliyal64/adservice:latest .'
+                            sh 'docker push naveenthapliyal64/adservice:latest'
+                            sh 'docker rmi naveenthapliyal64/adservice:latest'
+                        }
+                    }    
+                }
+            }
+        }
+    
+        stage('shippingservice') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred' , toolname: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-tier/src/shippingservice'){
+                            sh 'docker build -t naveenthapliyal64/shippingservice:latest .'
+                            sh 'docker push naveenthapliyal64/shippingservice:latest'
+                            sh 'docker rmi naveenthapliyal64/shippingservice:latest'
+                        }
+                    }    
+                }
+            }
+        }
+    
+        stage('recommendationservice') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred' , toolname: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-tier/src/recommendationservice'){
+                            sh 'docker build -t naveenthapliyal64/recommendationservice:latest .'
+                            sh 'docker push naveenthapliyal64/recommendationservice:latest'
+                            sh 'docker rmi naveenthapliyal64/recommendationservice:latest'
+                        }
+                    }    
+                }
+            }
+        }
+        
+        stage('productcatalogservice') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred' , toolname: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-tier/src/productcatalogservice'){
+                            sh 'docker build -t naveenthapliyal64/productcatalogservice:latest .'
+                            sh 'docker push naveenthapliyal64/productcatalogservice:latest'
+                            sh 'docker rmi naveenthapliyal64/productcatalogservice:latest'
+                        }
+                    }    
+                }
+            }
+        }
+        
+        stage('paymentservice') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred' , toolname: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-tier/src/paymentservice'){
+                            sh 'docker build -t naveenthapliyal64/paymentservice:latest .'
+                            sh 'docker push naveenthapliyal64/paymentservice:latest'
+                            sh 'docker rmi naveenthapliyal64/paymentservice:latest'
+                        }
+                    }    
+                }
+            }
+        }
+        
+        stage('loadgenerator') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred' , toolname: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-tier/src/loadgenerator'){
+                            sh 'docker build -t naveenthapliyal64/loadgenerator:latest .'
+                            sh 'docker push naveenthapliyal64/loadgenerator:latest'
+                            sh 'docker rmi naveenthapliyal64/loadgenerator:latest'
+                        }
+                    }    
+                }
+            }
+        }
+        
+        stage('frontend') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred' , toolname: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-tier/src/frontend'){
+                            sh 'docker build -t naveenthapliyal64/frontend:latest .'
+                            sh 'docker push naveenthapliyal64/frontend:latest'
+                            sh 'docker rmi naveenthapliyal64/frontend:latest'
+                        }
+                    }    
+                }
+            }
+        }
+        
+        stage('emailservice') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred' , toolname: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-tier/src/emailservice'){
+                            sh 'docker build -t naveenthapliyal64/emailservice:latest .'
+                            sh 'docker push naveenthapliyal64/emailservice:latest'
+                            sh 'docker rmi naveenthapliyal64/emailservice:latest'
+                        }
+                    }    
+                }
+            }
+        }
+        
+        stage('currencyservice') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred' , toolname: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-tier/src/currencyservice'){
+                            sh 'docker build -t naveenthapliyal64/currencyservice:latest .'
+                            sh 'docker push naveenthapliyal64/currencyservice:latest'
+                            sh 'docker rmi naveenthapliyal64/currencyservice:latest'
+                        }
+                    }    
+                }
+            }
+        }
+        
+        stage('checkoutservice') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred' , toolname: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-tier/src/checkoutservice'){
+                            sh 'docker build -t naveenthapliyal64/checkoutservice:latest .'
+                            sh 'docker push naveenthapliyal64/checkoutservice:latest'
+                            sh 'docker rmi naveenthapliyal64/checkoutservice:latest'
+                        }
+                    }    
+                }
+            }
+        }
+    
+        stage('cartservice') {
+            steps {
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred' , toolname: 'docker') {
+                        dir('/var/lib/jenkins/workspace/10-tier/src/cartservice/src'){
+                            sh 'docker build -t naveenthapliyal64/cartservice:latest .'
+                            sh 'docker push naveenthapliyal64/cartservice:latest'
+                            sh 'docker rmi naveenthapliyal64/cartservice:latest'
+                        }
+                    }    
+                }
+            }
+        }
+    
+        
+        stage('Deploy Kubernetes Manifests') {
+    steps {
+        script {
+            // Directory containing YAML deployment files
+            def manifestDir = 'kubernetes-manifests'
+            
+            // Get a list of all YAML files in the directory
+            def files = sh(script: "ls ${manifestDir}/*.yaml", returnStdout: true).trim().split('\n')
+            
+            // Deploy manifests using withKubeConfig
+            withKubeConfig(
+                clusterName: 'my-eks2',
+                credentialsId: 'k8-token',
+                namespace: 'webapps',
+                serverUrl: 'https://2EEAF41EDC118C255B5DCE2AED8F56B8.gr7.us-east-1.eks.amazonaws.com'
+            ) {
+                // Apply each YAML file
+                files.each { file ->
+                    sh "kubectl apply -f ${file}"
+                }
+            }
+            
+            // Display pods and services after deployment
+            sh 'kubectl get pods'
+            sh 'kubectl get svc'
+        }
+    }
+}
+
+
+      
+      
+    }
+}
+
