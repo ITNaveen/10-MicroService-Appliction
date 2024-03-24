@@ -1,0 +1,97 @@
+To have monitoring at one place with a single IP address and at minimum cost, you can use an AWS Network Load Balancer (NLB) to expose your Prometheus and Grafana services. NLBs are cost-effective and highly available, making them a good choice for this use case.
+
+Follow these steps:
+
+    Create an NLB Service for Prometheus
+
+Create a Kubernetes Service of type LoadBalancer for Prometheus. This will provision an AWS Network Load Balancer and associate it with the Prometheus pods.
+
+yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-nlb
+spec:
+  type: LoadBalancer
+  selector:
+    app: prometheus
+  ports:
+  - port: 80
+    targetPort: 9090
+
+Apply this manifest using kubectl apply -f prometheus-nlb-service.yaml.
+
+    Create an NLB Service for Grafana
+
+Create a similar Kubernetes Service of type LoadBalancer for Grafana.
+
+yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-nlb
+spec:
+  type: LoadBalancer
+  selector:
+    app: grafana
+  ports:
+  - port: 80
+    targetPort: 3000
+
+Apply this manifest using kubectl apply -f grafana-nlb-service.yaml.
+
+    Wait for the NLB to be provisioned
+
+After applying the manifests, wait for the NLB to be provisioned and an external IP address to be assigned. You can check the status with:
+
+kubectl get svc prometheus-nlb
+kubectl get svc grafana-nlb
+
+Look for the EXTERNAL-IP column, which will show the NLB's IP address once it's ready.
+
+    Configure Ingress Rules
+
+Now, you need to configure ingress rules to route traffic from the NLB to your Prometheus and Grafana services.
+
+Create an Ingress manifest:
+
+yaml
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: monitoring-ingress
+spec:
+  ingressClassName: alb
+  rules:
+  - http:
+      paths:
+      - path: /prometheus
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus-nlb
+            port:
+              number: 80
+      - path: /grafana
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana-nlb
+            port:
+              number: 80
+
+Apply this manifest using kubectl apply -f monitoring-ingress.yaml.
+
+    Access Prometheus and Grafana
+
+You can now access Prometheus and Grafana using the NLB's IP address:
+
+    Prometheus: http://<NLB_IP>/prometheus
+    Grafana: http://<NLB_IP>/grafana
+
+This setup uses a single NLB to expose both Prometheus and Grafana, minimizing costs while providing a single IP address for monitoring. The ingress rules route traffic to the appropriate services based on the URL path.
+
+Note: You may need to configure security groups or other AWS resources to allow inbound traffic to the NLB from your desired IP range or create a DNS record for the NLB IP address.
