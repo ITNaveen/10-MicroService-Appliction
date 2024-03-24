@@ -17,9 +17,8 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
       volumes:
-      - name: dockerhub-creds
-        secret:
-          secretName: dockerhub-creds
+      - name: redis-data
+        emptyDir: {}
       containers:
       - name: redis
         securityContext:
@@ -43,9 +42,6 @@ spec:
         volumeMounts:
         - mountPath: /data
           name: redis-data
-        - name: dockerhub-creds
-          mountPath: /etc/docker
-          readOnly: true
         resources:
           limits:
             memory: 256Mi
@@ -53,9 +49,6 @@ spec:
           requests:
             cpu: 70m
             memory: 200Mi
-      volumes:
-      - name: redis-data
-        emptyDir: {}
 
 ---
 apiVersion: v1
