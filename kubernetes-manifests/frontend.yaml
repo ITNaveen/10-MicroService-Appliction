@@ -19,90 +19,10 @@ spec:
         runAsGroup: 1000
         runAsNonRoot: true
         runAsUser: 1000
-      # Copyright 2018 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: adservice
-spec:
-  selector:
-    matchLabels:
-      app: adservice
-  template:
-    metadata:
-      labels:
-        app: adservice
-    spec:
-      serviceAccountName: default
-      terminationGracePeriodSeconds: 5
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
       volumes:
       - name: dockerhub-creds
         secret:
-          secretName: dockerhub-creds
-      containers:
-      - name: server
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-              - ALL
-          privileged: false
-          readOnlyRootFilesystem: true
-        image: naveenthapliyal64/adservice:latest
-        ports:
-        - containerPort: 9555
-        env:
-        - name: PORT
-          value: "9555"
-        resources:
-          requests:
-            cpu: 200m
-            memory: 180Mi
-          limits:
-            cpu: 300m
-            memory: 300Mi
-        readinessProbe:
-          initialDelaySeconds: 20
-          periodSeconds: 15
-          grpc:
-            port: 9555
-        livenessProbe:
-          initialDelaySeconds: 20
-          periodSeconds: 15
-          grpc:
-            port: 9555
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: adservice
-spec:
-  type: ClusterIP
-  selector:
-    app: adservice
-  ports:
-  - name: grpc
-    port: 9555
-    targetPort: 9555
-
+          secretName: dockerhub-creds   # Ensure this matches the actual name of your DockerHub secret
       containers:
         - name: server
           securityContext:
@@ -114,7 +34,7 @@ spec:
             readOnlyRootFilesystem: true
           image: naveenthapliyal64/frontend:latest
           ports:
-          - containerPort: 8080
+            - containerPort: 8080
           readinessProbe:
             initialDelaySeconds: 10
             httpGet:
@@ -132,32 +52,24 @@ spec:
               - name: "Cookie"
                 value: "shop_session-id=x-liveness-probe"
           env:
-          - name: PORT
-            value: "8080"
-          - name: PRODUCT_CATALOG_SERVICE_ADDR
-            value: "productcatalogservice:3550"
-          - name: CURRENCY_SERVICE_ADDR
-            value: "currencyservice:7000"
-          - name: CART_SERVICE_ADDR
-            value: "cartservice:7070"
-          - name: RECOMMENDATION_SERVICE_ADDR
-            value: "recommendationservice:8080"
-          - name: SHIPPING_SERVICE_ADDR
-            value: "shippingservice:50051"
-          - name: CHECKOUT_SERVICE_ADDR
-            value: "checkoutservice:5050"
-          - name: AD_SERVICE_ADDR
-            value: "adservice:9555"
-          # # ENV_PLATFORM: One of: local, gcp, aws, azure, onprem, alibaba
-          # # When not set, defaults to "local" unless running in GKE, otherwies auto-sets to gcp
-          # - name: ENV_PLATFORM
-          #   value: "aws"
-          - name: ENABLE_PROFILER
-            value: "0"
-          # - name: CYMBAL_BRANDING
-          #   value: "true"
-          # - name: FRONTEND_MESSAGE
-          #   value: "Replace this with a message you want to display on all pages."
+            - name: PORT
+              value: "8080"
+            - name: PRODUCT_CATALOG_SERVICE_ADDR
+              value: "productcatalogservice:3550"
+            - name: CURRENCY_SERVICE_ADDR
+              value: "currencyservice:7000"
+            - name: CART_SERVICE_ADDR
+              value: "cartservice:7070"
+            - name: RECOMMENDATION_SERVICE_ADDR
+              value: "recommendationservice:8080"
+            - name: SHIPPING_SERVICE_ADDR
+              value: "shippingservice:50051"
+            - name: CHECKOUT_SERVICE_ADDR
+              value: "checkoutservice:5050"
+            - name: AD_SERVICE_ADDR
+              value: "adservice:9555"
+            - name: ENABLE_PROFILER
+              value: "0"
           resources:
             requests:
               cpu: 100m
@@ -165,6 +77,7 @@ spec:
             limits:
               cpu: 200m
               memory: 128Mi
+
 ---
 apiVersion: v1
 kind: Service
@@ -175,9 +88,10 @@ spec:
   selector:
     app: frontend
   ports:
-  - name: http
-    port: 80
-    targetPort: 8080
+    - name: http
+      port: 80
+      targetPort: 8080
+
 ---
 apiVersion: v1
 kind: Service
@@ -188,6 +102,6 @@ spec:
   selector:
     app: frontend
   ports:
-  - name: http
-    port: 80
-    targetPort: 8080
+    - name: http
+      port: 80
+      targetPort: 8080
