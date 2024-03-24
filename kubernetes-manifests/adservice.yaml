@@ -32,6 +32,10 @@ spec:
         runAsGroup: 1000
         runAsNonRoot: true
         runAsUser: 1000
+      volumes:
+      - name: dockerhub-creds
+        secret:
+          secretName: dockerhub-creds
       containers:
       - name: server
         securityContext:
